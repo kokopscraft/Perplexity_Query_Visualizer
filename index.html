@@ -796,7 +796,7 @@
   function makeGaugeSVG(remaining, total, colorClass, labelUsed, labelLeft) {
     const pct = total > 0 ? Math.min(1, remaining / total) : (remaining > 0 ? 1 : 0);
     const usedPct = 1 - pct;
-    const cx = 70, cy = 50, r = 45;
+    const cx = 70, cy = 74, r = 54;
     const startAngle = Math.PI; // left
     const endAngle = 0;        // right (arc across top)
     function polarToXY(angle) {
@@ -809,7 +809,8 @@
     // Fill arc: from start to pct
     const fillAngle = startAngle - (Math.PI * pct);
     const [fx, fy] = polarToXY(fillAngle);
-    const fillPath = pct === 0 ? '' : `M ${sx} ${sy} A ${r} ${r} 0 0 0 ${fx} ${fy}`;
+    const largeArc = pct > 0.5 ? 1 : 0;
+    const fillPath = pct > 0 ? `M ${sx} ${sy} A ${r} ${r} 0 ${largeArc} 1 ${fx} ${fy}` : '';
     // CSS color var based on colorClass
     const colorMap = {
       'pro': 'var(--color-gold)',
