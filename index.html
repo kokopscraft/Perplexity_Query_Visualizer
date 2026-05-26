@@ -796,7 +796,7 @@
   function makeGaugeSVG(remaining, total, colorClass, labelUsed, labelLeft) {
     const pct = total > 0 ? Math.min(1, remaining / total) : (remaining > 0 ? 1 : 0);
     const usedPct = 1 - pct;
-    const cx = 70, cy = 74, r = 54;
+    const cx = 70, cy = 50, r = 45;
     const startAngle = Math.PI; // left
     const endAngle = 0;        // right (arc across top)
     function polarToXY(angle) {
