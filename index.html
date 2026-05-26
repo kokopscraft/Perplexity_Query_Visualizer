@@ -810,7 +810,7 @@
     const fillAngle = startAngle - (Math.PI * pct);
     const [fx, fy] = polarToXY(fillAngle);
     const largeArc = pct > 0.5 ? 1 : 0;
-    const fillPath = pct > 0 ? `M ${sx} ${sy} A ${r} ${r} 0 ${largeArc} 1 ${fx} ${fy}` : '';
+    const fillPath = pct > 0 ? `M ${sx} ${sy} A ${r} ${r} 0 ${largeArc} 0 ${fx} ${fy}` : '';
     // CSS color var based on colorClass
     const colorMap = {
       'pro': 'var(--color-gold)',
