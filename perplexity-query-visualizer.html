@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perplexity Query Visualizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    /* ===== DESIGN TOKENS ===== */
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
+      --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem;
+      --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem;
+      --space-16: 4rem;
+
+      --color-bg: #f7f6f2;
+      --color-surface: #f9f8f5;
+      --color-surface-2: #fbfbf9;
+      --color-surface-offset: #f3f0ec;
+      --color-surface-offset-2: #edeae5;
+      --color-surface-dynamic: #e6e4df;
+      --color-divider: #dcd9d5;
+      --color-border: #d4d1ca;
+      --color-text: #28251d;
+      --color-text-muted: #7a7974;
+      --color-text-faint: #bab9b4;
+      --color-text-inverse: #f9f8f4;
+      --color-primary: #01696f;
+      --color-primary-hover: #0c4e54;
+      --color-primary-active: #0f3638;
+      --color-primary-highlight: #cedcd8;
+      --color-success: #437a22;
+      --color-success-highlight: #d4dfcc;
+      --color-warning: #964219;
+      --color-warning-highlight: #ddcfc6;
+      --color-error: #a12c7b;
+      --color-error-highlight: #e0ced7;
+      --color-gold: #d19900;
+      --color-gold-highlight: #e9e0c6;
+      --color-blue: #006494;
+      --color-blue-highlight: #c6d8e4;
+      --color-purple: #7a39bb;
+      --color-purple-highlight: #dacfde;
+      --color-orange: #da7101;
+      --color-orange-highlight: #e7d7c4;
+
+      --radius-sm: 0.375rem; --radius-md: 0.5rem;
+      --radius-lg: 0.75rem; --radius-xl: 1rem; --radius-full: 9999px;
+      --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+      --shadow-sm: 0 1px 2px oklch(0.2 0.01 80 / 0.06);
+      --shadow-md: 0 4px 12px oklch(0.2 0.01 80 / 0.08);
+      --shadow-lg: 0 12px 32px oklch(0.2 0.01 80 / 0.12);
+      --font-body: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --content-default: 960px;
+    }
+
+    [data-theme="dark"] {
+      --color-bg: #171614;
+      --color-surface: #1c1b19;
+      --color-surface-2: #201f1d;
+      --color-surface-offset: #1d1c1a;
+      --color-surface-offset-2: #22211f;
+      --color-surface-dynamic: #2d2c2a;
+      --color-divider: #262523;
+      --color-border: #393836;
+      --color-text: #cdccca;
+      --color-text-muted: #797876;
+      --color-text-faint: #5a5957;
+      --color-text-inverse: #2b2a28;
+      --color-primary: #4f98a3;
+      --color-primary-hover: #227f8b;
+      --color-primary-active: #1a626b;
+      --color-primary-highlight: #313b3b;
+      --color-success: #6daa45;
+      --color-success-highlight: #3a4435;
+      --color-warning: #bb653b;
+      --color-warning-highlight: #564942;
+      --color-error: #d163a7;
+      --color-error-highlight: #4c3d46;
+      --color-gold: #e8af34;
+      --color-gold-highlight: #4d4332;
+      --color-blue: #5591c7;
+      --color-blue-highlight: #3a4550;
+      --color-purple: #a86fdf;
+      --color-purple-highlight: #4e4652;
+      --color-orange: #fdab43;
+      --color-orange-highlight: #564b3e;
+      --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.2);
+      --shadow-md: 0 4px 12px oklch(0 0 0 / 0.3);
+      --shadow-lg: 0 12px 32px oklch(0 0 0 / 0.4);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme]) {
+        --color-bg: #171614; --color-surface: #1c1b19; --color-surface-2: #201f1d;
+        --color-surface-offset: #1d1c1a; --color-surface-offset-2: #22211f;
+        --color-surface-dynamic: #2d2c2a; --color-divider: #262523; --color-border: #393836;
+        --color-text: #cdccca; --color-text-muted: #797876; --color-text-faint: #5a5957;
+        --color-text-inverse: #2b2a28; --color-primary: #4f98a3;
+        --color-primary-hover: #227f8b; --color-primary-active: #1a626b;
+        --color-primary-highlight: #313b3b; --color-success: #6daa45;
+        --color-success-highlight: #3a4435; --color-warning: #bb653b;
+        --color-warning-highlight: #564942; --color-error: #d163a7;
+        --color-error-highlight: #4c3d46; --color-gold: #e8af34;
+        --color-gold-highlight: #4d4332; --color-blue: #5591c7;
+        --color-blue-highlight: #3a4550; --color-purple: #a86fdf;
+        --color-purple-highlight: #4e4652; --color-orange: #fdab43;
+        --color-orange-highlight: #564b3e;
+        --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.2);
+        --shadow-md: 0 4px 12px oklch(0 0 0 / 0.3);
+        --shadow-lg: 0 12px 32px oklch(0 0 0 / 0.4);
+      }
+    }
+
+    /* ===== BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+    body {
+      min-height: 100dvh; font-family: var(--font-body);
+      font-size: var(--text-sm); color: var(--color-text);
+      background: var(--color-bg); line-height: 1.6;
+    }
+    img, svg { display: block; max-width: 100%; }
+    button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; }
+    a, button, input, textarea {
+      transition: color var(--transition), background var(--transition),
+                  border-color var(--transition), box-shadow var(--transition);
+    }
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 3px; border-radius: var(--radius-sm);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* ===== LAYOUT ===== */
+    .app-header {
+      position: sticky; top: 0; z-index: 100;
+      background: color-mix(in oklch, var(--color-bg) 88%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid oklch(from var(--color-text) l c h / 0.08);
+      padding: var(--space-3) var(--space-6);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .header-logo { display: flex; align-items: center; gap: var(--space-3); }
+    .logo-mark {
+      width: 32px; height: 32px; color: var(--color-primary);
+      flex-shrink: 0;
+    }
+    .logo-text {
+      font-size: var(--text-sm); font-weight: 600; letter-spacing: -0.01em;
+      color: var(--color-text);
+    }
+    .logo-text span { color: var(--color-primary); }
+    .header-actions { display: flex; align-items: center; gap: var(--space-3); }
+    .lang-toggle {
+      display: flex; align-items: center; gap: var(--space-1);
+      font-size: var(--text-xs); font-weight: 500;
+      background: var(--color-surface-offset);
+      border-radius: var(--radius-full);
+      padding: var(--space-1) var(--space-2);
+      border: 1px solid oklch(from var(--color-text) l c h / 0.1);
+    }
+    .lang-btn {
+      padding: 2px var(--space-2); border-radius: var(--radius-full);
+      font-size: var(--text-xs); font-weight: 500; color: var(--color-text-muted);
+    }
+    .lang-btn.active {
+      background: var(--color-primary);
+      color: var(--color-text-inverse);
+    }
+    .theme-btn {
+      width: 36px; height: 36px; border-radius: var(--radius-full);
+      display: flex; align-items: center; justify-content: center;
+      background: var(--color-surface-offset);
+      border: 1px solid oklch(from var(--color-text) l c h / 0.1);
+      color: var(--color-text-muted);
+    }
+    .theme-btn:hover { color: var(--color-text); background: var(--color-surface-dynamic); }
+
+    .main { max-width: var(--content-default); margin-inline: auto; padding: var(--space-10) var(--space-6); }
+
+    /* ===== STEP SECTION ===== */
+    .step-header {
+      display: flex; align-items: center; gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+    .step-num {
+      width: 28px; height: 28px; border-radius: var(--radius-full);
+      background: var(--color-primary); color: var(--color-text-inverse);
+      font-size: var(--text-xs); font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .step-title { font-size: var(--text-lg); font-weight: 600; line-height: 1.2; }
+    .step-desc { font-size: var(--text-sm); color: var(--color-text-muted); margin-top: var(--space-1); }
+
+    /* ===== INSTRUCTION CARD ===== */
+    .instruction-card {
+      background: var(--color-surface);
+      border: 1px solid oklch(from var(--color-text) l c h / 0.08);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      margin-bottom: var(--space-8);
+      box-shadow: var(--shadow-sm);
+    }
+    .instruction-card .url-link {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-family: var(--font-mono); font-size: var(--text-xs);
+      color: var(--color-primary); font-weight: 500;
+      background: var(--color-primary-highlight);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md); margin-top: var(--space-3);
+      text-decoration: none; border: 1px solid oklch(from var(--color-primary) l c h / 0.2);
+    }
+    .instruction-card .url-link:hover { background: color-mix(in oklch, var(--color-primary) 15%, var(--color-surface)); }
+    .instruction-steps { margin-top: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); }
+    .instruction-step { display: flex; gap: var(--space-3); align-items: flex-start; }
+    .inst-dot {
+      width: 20px; height: 20px; border-radius: var(--radius-full);
+      background: var(--color-surface-dynamic); border: 1px solid var(--color-border);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
+      font-size: 10px; font-weight: 700; color: var(--color-text-muted);
+    }
+    .inst-text { font-size: var(--text-sm); color: var(--color-text-muted); }
+    .inst-text code {
+      font-family: var(--font-mono); font-size: 0.85em;
+      background: var(--color-surface-offset-2);
+      padding: 1px 5px; border-radius: var(--radius-sm);
+      color: var(--color-text);
+    }
+
+    /* ===== INPUT SECTION ===== */
+    .input-section { margin-bottom: var(--space-8); }
+    .textarea-wrap {
+      position: relative;
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .textarea-wrap:focus-within {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-primary) 18%, transparent), var(--shadow-sm);
+    }
+    .textarea-label {
+      display: flex; align-items: center; gap: var(--space-2);
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid oklch(from var(--color-text) l c h / 0.07);
+      font-size: var(--text-xs); font-weight: 600; color: var(--color-text-muted);
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .json-textarea {
+      width: 100%; min-height: 160px; max-height: 300px;
+      padding: var(--space-4); resize: vertical;
+      font-family: var(--font-mono); font-size: var(--text-xs);
+      line-height: 1.7; color: var(--color-text);
+      background: transparent; border: none; outline: none;
+    }
+    .textarea-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--space-2) var(--space-4);
+      border-top: 1px solid oklch(from var(--color-text) l c h / 0.07);
+      background: var(--color-surface-offset);
+    }
+    .char-count { font-size: var(--text-xs); color: var(--color-text-faint); font-family: var(--font-mono); }
+    .analyze-btn {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      background: var(--color-primary); color: var(--color-text-inverse);
+      padding: var(--space-2) var(--space-5);
+      border-radius: var(--radius-full); font-size: var(--text-sm); font-weight: 600;
+      box-shadow: var(--shadow-sm);
+    }
+    .analyze-btn:hover { background: var(--color-primary-hover); }
+    .analyze-btn:active { background: var(--color-primary-active); }
+    .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .error-msg {
+      display: none; align-items: center; gap: var(--space-2);
+      margin-top: var(--space-3); padding: var(--space-3) var(--space-4);
+      background: var(--color-error-highlight);
+      border-radius: var(--radius-md); font-size: var(--text-xs);
+      color: var(--color-error); border: 1px solid oklch(from var(--color-error) l c h / 0.2);
+    }
+    .error-msg.visible { display: flex; }
+
+    /* ===== RESULTS ===== */
+    #results { display: none; }
+    #results.visible { display: block; }
+    .results-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: var(--space-6);
+    }
+    .plan-badge {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 600;
+    }
+    .plan-badge.pro {
+      background: var(--color-gold-highlight);
+      color: var(--color-gold); border: 1px solid oklch(from var(--color-gold) l c h / 0.25);
+    }
+    .plan-badge.free {
+      background: var(--color-blue-highlight);
+      color: var(--color-blue); border: 1px solid oklch(from var(--color-blue) l c h / 0.25);
+    }
+    .reset-btn {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-size: var(--text-xs); color: var(--color-text-muted);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+    }
+    .reset-btn:hover { color: var(--color-text); background: var(--color-surface-dynamic); }
+
+    /* ===== KPI CARDS ===== */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-8);
+    }
+    .kpi-card {
+      background: var(--color-surface);
+      border: 1px solid oklch(from var(--color-text) l c h / 0.08);
+      border-radius: var(--radius-xl); padding: var(--space-5);
+      box-shadow: var(--shadow-sm);
+      display: flex; flex-direction: column; gap: var(--space-2);
+    }
+    .kpi-header { display: flex; align-items: center; gap: var(--space-2); }
+    .kpi-icon {
+      width: 32px; height: 32px; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .kpi-label { font-size: var(--text-xs); color: var(--color-text-muted); font-weight: 500; }
+    .kpi-value {
+      font-size: var(--text-xl); font-weight: 700; line-height: 1;
+      font-variant-numeric: tabular-nums lining-nums;
+      color: var(--color-text);
+    }
+    .kpi-sub { font-size: var(--text-xs); color: var(--color-text-faint); }
+
+    /* ===== METER ===== */
+    .meters-section { margin-bottom: var(--space-8); }
+    .section-title {
+      font-size: var(--text-base); font-weight: 600; margin-bottom: var(--space-4);
+      display: flex; align-items: center; gap: var(--space-2);
+      color: var(--color-text);
+    }
+    .meter-card {
+      background: var(--color-surface);
+      border: 1px solid oklch(from var(--color-text) l c h / 0.08);
+      border-radius: var(--radius-xl); padding: var(--space-5);
+      box-shadow: var(--shadow-sm); margin-bottom: var(--space-3);
+    }
+    .meter-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: var(--space-3);
+    }
+    .meter-name {
+      display: flex; align-items: center; gap: var(--space-2);
+      font-size: var(--text-sm); font-weight: 600;
+    }
+    .meter-counts {
+      font-size: var(--text-xs); color: var(--color-text-muted);
+      font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+    }
+    .meter-track {
+      height: 8px; background: var(--color-surface-dynamic);
+      border-radius: var(--radius-full); overflow: hidden;
+    }
+    .meter-fill {
+      height: 100%; border-radius: var(--radius-full);
+      transition: width 700ms cubic-bezier(0.16, 1, 0.3, 1);
+      width: 0;
+    }
+    .meter-sub {
+      margin-top: var(--space-2);
+      font-size: var(--text-xs); color: var(--color-text-faint);
+    }
+
+    /* ===== GAUGE (ARC) ===== */
+    .gauge-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
+      gap: var(--space-4); margin-bottom: var(--space-8);
+    }
+    .gauge-card {
+      background: var(--color-surface);
+      border: 1px solid oklch(from var(--color-text) l c h / 0.08);
+      border-radius: var(--radius-xl); padding: var(--space-5);
+      box-shadow: var(--shadow-sm);
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .gauge-label {
+      font-size: var(--text-xs); font-weight: 600; color: var(--color-text-muted);
+      text-align: center; margin-bottom: var(--space-3);
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .gauge-svg { width: 140px; height: 80px; overflow: visible; }
+    .gauge-value {
+      font-size: var(--text-lg); font-weight: 700;
+      font-variant-numeric: tabular-nums; text-align: center;
+      margin-top: var(--space-2); color: var(--color-text);
+    }
+    .gauge-remaining { font-size: var(--text-xs); color: var(--color-text-muted); text-align: center; margin-top: var(--space-1); }
+
+    /* ===== SOURCES TABLE ===== */
+    .sources-section { margin-bottom: var(--space-8); }
+    .sources-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+      gap: var(--space-3);
+    }
+    .source-card {
+      background: var(--color-surface);
+      border: 1px solid oklch(from var(--color-text) l c h / 0.08);
+      border-radius: var(--radius-lg); padding: var(--space-4);
+      box-shadow: var(--shadow-sm);
+      display: flex; align-items: center; gap: var(--space-3);
+    }
+    .source-card.unavailable { opacity: 0.5; }
+    .source-icon-wrap {
+      width: 36px; height: 36px; border-radius: var(--radius-md);
+      background: var(--color-surface-offset);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; color: var(--color-text-muted);
+    }
+    .source-info { flex: 1; min-width: 0; }
+    .source-name {
+      font-size: var(--text-xs); font-weight: 600; color: var(--color-text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .source-bar-wrap { margin-top: var(--space-1); }
+    .source-bar-track {
+      height: 4px; background: var(--color-surface-dynamic);
+      border-radius: var(--radius-full); overflow: hidden;
+    }
+    .source-bar-fill {
+      height: 100%; border-radius: var(--radius-full);
+      transition: width 700ms cubic-bezier(0.16, 1, 0.3, 1); width: 0;
+    }
+    .source-stat {
+      font-size: var(--text-xs); font-family: var(--font-mono);
+      color: var(--color-text-muted); font-variant-numeric: tabular-nums;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .source-unlimited {
+      font-size: var(--text-xs); color: var(--color-primary); font-weight: 500;
+    }
+
+    /* ===== SEPARATOR ===== */
+    .divider {
+      height: 1px; background: var(--color-divider);
+      margin: var(--space-8) 0;
+    }
+
+    /* ===== UTILITIES ===== */
+    .color-pro { color: var(--color-gold); }
+    .color-free { color: var(--color-blue); }
+    .color-pro-bg { background: var(--color-gold); }
+    .color-free-bg { background: var(--color-blue); }
+    .color-primary-bg { background: var(--color-primary); }
+    .color-success-bg { background: var(--color-success); }
+    .color-warning-bg { background: var(--color-warning); }
+    .color-error-bg { background: var(--color-error); }
+    .color-purple-bg { background: var(--color-purple); }
+    .color-orange-bg { background: var(--color-orange); }
+    .bg-pro { background: var(--color-gold-highlight); color: var(--color-gold); }
+    .bg-free { background: var(--color-blue-highlight); color: var(--color-blue); }
+    .bg-primary { background: var(--color-primary-highlight); color: var(--color-primary); }
+    .bg-success { background: var(--color-success-highlight); color: var(--color-success); }
+    .bg-purple { background: var(--color-purple-highlight); color: var(--color-purple); }
+    .bg-orange { background: var(--color-orange-highlight); color: var(--color-orange); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 600px) {
+      .main { padding: var(--space-6) var(--space-4); }
+      .app-header { padding: var(--space-3) var(--space-4); }
+      .logo-text { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div class="header-logo">
+    <!-- SVG Logo: abstract "P" with query arcs -->
+    <svg class="logo-mark" viewBox="0 0 32 32" fill="none" aria-label="Perplexity Query Visualizer">
+      <rect x="2" y="2" width="28" height="28" rx="7" fill="currentColor" opacity="0.12"/>
+      <path d="M10 8h7a5 5 0 0 1 0 10h-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M13 18v6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      <circle cx="23" cy="23" r="3" fill="currentColor" opacity="0.5"/>
+      <path d="M20.5 20.5l1.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <span class="logo-text">Perplexity <span>Query Visualizer</span></span>
+  </div>
+  <div class="header-actions">
+    <div class="lang-toggle" role="group" aria-label="Language">
+      <button class="lang-btn active" data-lang="ja" onclick="setLang('ja')">JP</button>
+      <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="theme-btn" data-theme-toggle aria-label="Switch theme" title="Toggle theme">
+      <i data-lucide="sun" width="16" height="16"></i>
+    </button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- STEP 1: Instruction -->
+  <section class="instruction-section">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-title" data-i18n="step1Title">レート制限情報を取得する</div>
+        <div class="step-desc" data-i18n="step1Desc">Perplexityにログインした状態で以下のURLにアクセスし、表示されたJSONテキストをコピーしてください</div>
+      </div>
+    </div>
+    <div class="instruction-card">
+      <p class="inst-text" data-i18n="instrNote">Perplexityにログインした状態で以下のURLにアクセスし、ページのテキスト全体をコピーしてください。</p>
+      <a href="https://www.perplexity.ai/rest/rate-limit/all" target="_blank" rel="noopener noreferrer" class="url-link">
+        <i data-lucide="external-link" width="12" height="12"></i>
+        perplexity.ai/rest/rate-limit/all
+      </a>
+      <div class="instruction-steps">
+        <div class="instruction-step">
+          <div class="inst-dot">1</div>
+          <div class="inst-text" data-i18n="instr1">上記リンクをクリックして新しいタブで開く</div>
+        </div>
+        <div class="instruction-step">
+          <div class="inst-dot">2</div>
+          <div class="inst-text" data-i18n="instr2"><code>Ctrl+A</code>（Mac: <code>Cmd+A</code>）で全テキストを選択して<code>Ctrl+C</code>でコピー</div>
+        </div>
+        <div class="instruction-step">
+          <div class="inst-dot">3</div>
+          <div class="inst-text" data-i18n="instr3">下のテキストボックスにペーストして「解析する」ボタンをクリック</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2: Input -->
+  <section class="input-section">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title" data-i18n="step2Title">JSONを貼り付ける</div>
+        <div class="step-desc" data-i18n="step2Desc">コピーしたJSONテキストをここに貼り付けてください</div>
+      </div>
+    </div>
+    <div class="textarea-wrap">
+      <div class="textarea-label">
+        <i data-lucide="code-2" width="13" height="13"></i>
+        <span data-i18n="jsonLabel">JSON データ</span>
+      </div>
+      <textarea class="json-textarea" id="jsonInput" placeholder='{"free_queries":{"available":true...}}' spellcheck="false" autocomplete="off" aria-label="JSON input"></textarea>
+      <div class="textarea-footer">
+        <span class="char-count" id="charCount">0 chars</span>
+        <button class="analyze-btn" id="analyzeBtn" onclick="analyze()" disabled>
+          <i data-lucide="bar-chart-2" width="14" height="14"></i>
+          <span data-i18n="analyzeBtn">解析する</span>
+        </button>
+      </div>
+    </div>
+    <div class="error-msg" id="errorMsg">
+      <i data-lucide="alert-circle" width="14" height="14"></i>
+      <span id="errorText"></span>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- RESULTS -->
+  <section id="results">
+
+    <div class="results-header">
+      <div style="display:flex; align-items:center; gap:var(--space-3);">
+        <div class="step-num" style="background:var(--color-success);">3</div>
+        <div class="step-title" data-i18n="step3Title">クエリ使用状況</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:var(--space-3);">
+        <div class="plan-badge" id="planBadge"></div>
+        <button class="reset-btn" onclick="resetAll()">
+          <i data-lucide="rotate-ccw" width="12" height="12"></i>
+          <span data-i18n="resetBtn">リセット</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <!-- ARC GAUGES -->
+    <div class="meters-section">
+      <div class="section-title">
+        <i data-lucide="gauge" width="16" height="16" style="color:var(--color-primary);"></i>
+        <span data-i18n="mainLimitsTitle">メインクエリ制限</span>
+      </div>
+      <div class="gauge-grid" id="gaugeGrid"></div>
+    </div>
+
+    <!-- BAR METERS -->
+    <div class="meters-section" id="barSection">
+      <div class="section-title">
+        <i data-lucide="database" width="16" height="16" style="color:var(--color-primary);"></i>
+        <span data-i18n="sourceLimitsTitle">データソース制限</span>
+      </div>
+      <div class="sources-grid" id="sourcesGrid"></div>
+    </div>
+
+  </section>
+
+</main>
+
+<script>
+  // ===== I18N =====
+  const i18n = {
+    ja: {
+      step1Title: "レート制限情報を取得する",
+      step1Desc: "Perplexityにログインした状態で以下のURLにアクセスしてください",
+      instrNote: "Perplexityにログインした状態で以下のURLにアクセスし、ページのテキスト全体をコピーしてください。",
+      instr1: "上記リンクをクリックして新しいタブで開く",
+      instr2: "Ctrl+A（Mac: Cmd+A）で全テキストを選択してCtrl+Cでコピー",
+      instr2html: "<code>Ctrl+A</code>（Mac: <code>Cmd+A</code>）で全テキストを選択して<code>Ctrl+C</code>でコピー",
+      instr3: "下のテキストボックスにペーストして「解析する」ボタンをクリック",
+      step2Title: "JSONを貼り付ける",
+      step2Desc: "コピーしたJSONテキストをここに貼り付けてください",
+      jsonLabel: "JSON データ",
+      analyzeBtn: "解析する",
+      step3Title: "クエリ使用状況",
+      resetBtn: "リセット",
+      mainLimitsTitle: "メインクエリ制限",
+      sourceLimitsTitle: "データソース制限",
+      planPro: "Pro プラン",
+      planFree: "Free プラン",
+      proQueries: "Pro クエリ",
+      labsQueries: "Labs クエリ",
+      researchQueries: "Research クエリ",
+      agenticQueries: "Agentic Research",
+      remaining: "残り",
+      of: "/ ",
+      unlimited: "無制限",
+      unavailable: "利用不可",
+      noLimit: "制限なし",
+      parseError: "JSONの解析に失敗しました。コピーしたテキストをそのままペーストしてください。",
+      invalidFormat: "Perplexityのレート制限データではありません。正しいJSONをペーストしてください。",
+      used: "使用済み",
+      labelUsed: "使用",
+      labelLeft: "残り",
+    },
+    en: {
+      step1Title: "Retrieve Rate Limit Info",
+      step1Desc: "Visit the URL below while logged into Perplexity and copy the displayed JSON text",
+      instrNote: "While logged into Perplexity, visit the URL below and copy the entire page text.",
+      instr1: "Click the link above to open in a new tab",
+      instr2: "Select all text with Ctrl+A (Mac: Cmd+A) and copy with Ctrl+C",
+      instr2html: "Select all with <code>Ctrl+A</code> (Mac: <code>Cmd+A</code>) then copy with <code>Ctrl+C</code>",
+      instr3: "Paste into the text box below and click \"Analyze\"",
+      step2Title: "Paste the JSON",
+      step2Desc: "Paste the copied JSON text here",
+      jsonLabel: "JSON Data",
+      analyzeBtn: "Analyze",
+      step3Title: "Query Usage",
+      resetBtn: "Reset",
+      mainLimitsTitle: "Main Query Limits",
+      sourceLimitsTitle: "Data Source Limits",
+      planPro: "Pro Plan",
+      planFree: "Free Plan",
+      proQueries: "Pro Queries",
+      labsQueries: "Labs Queries",
+      researchQueries: "Research Queries",
+      agenticQueries: "Agentic Research",
+      remaining: "Remaining",
+      of: "/ ",
+      unlimited: "Unlimited",
+      unavailable: "Unavailable",
+      noLimit: "No Limit",
+      parseError: "Failed to parse JSON. Paste the copied text as-is.",
+      invalidFormat: "This does not look like Perplexity rate-limit data. Please paste the correct JSON.",
+      used: "Used",
+      labelUsed: "Used",
+      labelLeft: "Left",
+    }
+  };
+
+  let currentLang = 'ja';
+  let currentTheme = matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
+
+  function t(key) { return i18n[currentLang][key] || key; }
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+    // Re-render text nodes
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      if (key === 'instr2') { el.innerHTML = i18n[lang].instr2html; return; }
+      el.textContent = i18n[lang][key] || el.textContent;
+    });
+    // Re-render results if visible
+    const jsonInput = document.getElementById('jsonInput').value.trim();
+    if (jsonInput && document.getElementById('results').classList.contains('visible')) {
+      try { renderResults(JSON.parse(jsonInput)); } catch(e) {}
+    }
+  }
+
+  // ===== THEME =====
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  updateThemeIcon();
+
+  document.querySelector('[data-theme-toggle]').addEventListener('click', () => {
+    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    updateThemeIcon();
+  });
+
+  function updateThemeIcon() {
+    const btn = document.querySelector('[data-theme-toggle]');
+    btn.innerHTML = currentTheme === 'dark'
+      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+      : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  }
+
+  // ===== INPUT HANDLING =====
+  const jsonInput = document.getElementById('jsonInput');
+  const charCount = document.getElementById('charCount');
+  const analyzeBtn = document.getElementById('analyzeBtn');
+
+  jsonInput.addEventListener('input', () => {
+    const len = jsonInput.value.length;
+    charCount.textContent = len.toLocaleString() + ' chars';
+    analyzeBtn.disabled = len === 0;
+    hideError();
+  });
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    document.getElementById('errorText').textContent = msg;
+    el.classList.add('visible');
+  }
+  function hideError() { document.getElementById('errorMsg').classList.remove('visible'); }
+
+  function analyze() {
+    hideError();
+    const raw = jsonInput.value.trim();
+    let data;
+    try { data = JSON.parse(raw); }
+    catch(e) { showError(t('parseError')); return; }
+    if (!data.remaining_pro === undefined || !data.sources) {
+      showError(t('invalidFormat')); return;
+    }
+    renderResults(data);
+  }
+
+  function resetAll() {
+    jsonInput.value = '';
+    charCount.textContent = '0 chars';
+    analyzeBtn.disabled = true;
+    document.getElementById('results').classList.remove('visible');
+    hideError();
+  }
+
+  // ===== DETECT PLAN =====
+  function detectPlan(data) {
+    const labs = data.remaining_labs ?? 0;
+    const research = data.remaining_research ?? 0;
+    if (labs > 0 || research > 0) return 'pro';
+    // Check if sources show limits > 3 (pro) or <= 3 (free)
+    const srcLimits = Object.values(data.sources?.source_to_limit || {})
+      .filter(s => s.monthly_limit !== null && s.monthly_limit > 0)
+      .map(s => s.monthly_limit);
+    if (srcLimits.length > 0 && Math.max(...srcLimits) > 3) return 'pro';
+    return 'free';
+  }
+
+  // ===== GAUGE ARC =====
+  function makeGaugeSVG(remaining, total, colorClass, labelUsed, labelLeft) {
+    const pct = total > 0 ? Math.min(1, remaining / total) : (remaining > 0 ? 1 : 0);
+    const usedPct = 1 - pct;
+    const cx = 70, cy = 74, r = 54;
+    const startAngle = Math.PI; // left
+    const endAngle = 0;        // right (arc across top)
+    function polarToXY(angle) {
+      return [cx + r * Math.cos(angle), cy - r * Math.sin(angle)];
+    }
+    const [sx, sy] = polarToXY(startAngle);
+    const [ex, ey] = polarToXY(endAngle);
+    // Track arc: full semicircle
+    const trackPath = `M ${sx} ${sy} A ${r} ${r} 0 0 1 ${ex} ${ey}`;
+    // Fill arc: from start to pct
+    const fillAngle = startAngle - (Math.PI * pct);
+    const [fx, fy] = polarToXY(fillAngle);
+    const largeArc = pct > 0.5 ? 1 : 0;
+    const fillPath = pct > 0 ? `M ${sx} ${sy} A ${r} ${r} 0 ${largeArc} 1 ${fx} ${fy}` : '';
+    // CSS color var based on colorClass
+    const colorMap = {
+      'pro': 'var(--color-gold)',
+      'free': 'var(--color-blue)',
+      'primary': 'var(--color-primary)',
+      'success': 'var(--color-success)',
+      'purple': 'var(--color-purple)',
+      'orange': 'var(--color-orange)',
+      'warning': 'var(--color-warning)',
+    };
+    const strokeColor = colorMap[colorClass] || 'var(--color-primary)';
+    return `<svg class="gauge-svg" viewBox="0 0 140 80" aria-hidden="true">
+      <path d="${trackPath}" fill="none" stroke="var(--color-surface-dynamic)" stroke-width="10" stroke-linecap="round"/>
+      ${fillPath ? `<path d="${fillPath}" fill="none" stroke="${strokeColor}" stroke-width="10" stroke-linecap="round" class="gauge-fill-path" style="opacity:0" data-pct="${pct}"/>` : ''}
+    </svg>`;
+  }
+
+  function animateGauges() {
+    document.querySelectorAll('.gauge-fill-path').forEach(path => {
+      const len = path.getTotalLength?.() || 200;
+      path.style.strokeDasharray = len;
+      path.style.strokeDashoffset = len;
+      path.style.opacity = '1';
+      requestAnimationFrame(() => {
+        path.style.transition = 'stroke-dashoffset 800ms cubic-bezier(0.16,1,0.3,1)';
+        path.style.strokeDashoffset = '0';
+      });
+    });
+    // Animate bar fills
+    setTimeout(() => {
+      document.querySelectorAll('.meter-fill, .source-bar-fill').forEach(el => {
+        el.style.width = el.dataset.target + '%';
+      });
+    }, 100);
+  }
+
+  // ===== RENDER =====
+  function renderResults(data) {
+    const plan = detectPlan(data);
+    const isPro = plan === 'pro';
+
+    // Plan badge
+    const badge = document.getElementById('planBadge');
+    badge.className = 'plan-badge ' + plan;
+    badge.innerHTML = `<i data-lucide="${isPro ? 'crown' : 'user'}" width="12" height="12"></i> ${t(isPro ? 'planPro' : 'planFree')}`;
+
+    // KPI Cards
+    const kpiGrid = document.getElementById('kpiGrid');
+    const kpiItems = [
+      { key: 'proQueries', icon: 'zap', value: data.remaining_pro ?? 0, colorClass: 'primary', bg: 'bg-primary' },
+      { key: 'labsQueries', icon: 'flask-conical', value: data.remaining_labs ?? 0, colorClass: isPro ? 'purple' : null, bg: isPro ? 'bg-purple' : 'bg-disabled', disabled: !isPro },
+      { key: 'researchQueries', icon: 'search', value: data.remaining_research ?? 0, colorClass: isPro ? 'success' : null, bg: isPro ? 'bg-success' : 'bg-disabled', disabled: !isPro },
+      { key: 'agenticQueries', icon: 'bot', value: data.remaining_agentic_research ?? 0, colorClass: isPro ? 'orange' : null, bg: isPro ? 'bg-orange' : 'bg-disabled', disabled: !isPro },
+    ];
+    kpiGrid.innerHTML = kpiItems.map(item => {
+      const bgStyle = item.disabled
+        ? 'background:var(--color-surface-offset);color:var(--color-text-faint);'
+        : '';
+      const bgClass = item.disabled ? '' : item.bg;
+      return `<div class="kpi-card">
+        <div class="kpi-header">
+          <div class="kpi-icon ${bgClass}" style="${bgStyle}">
+            <i data-lucide="${item.icon}" width="16" height="16"></i>
+          </div>
+          <div class="kpi-label">${t(item.key)}</div>
+        </div>
+        <div class="kpi-value" style="${item.disabled ? 'color:var(--color-text-faint);' : ''}">${item.value}</div>
+        <div class="kpi-sub">${item.disabled ? t('unavailable') : t('remaining')}</div>
+      </div>`;
+    }).join('');
+
+    // Gauges
+    const proLimit = isPro ? 5 : 5; // Pro gets 5/day, free gets 5/day (remaining_pro)
+    // We'll infer max from plan type since API doesn't provide it
+    // Pro: pro=5, labs=25 (or 0 if free), research=10 (or 0), agentic=5
+    // We'll show remaining as value, and use standard limits
+    const gaugeItems = [
+      { key: 'proQueries', icon: 'zap', remaining: data.remaining_pro ?? 0, total: isPro ? 5 : 5, color: 'primary' },
+      { key: 'labsQueries', icon: 'flask-conical', remaining: data.remaining_labs ?? 0, total: isPro ? 25 : 0, color: 'purple', disabled: !isPro },
+      { key: 'researchQueries', icon: 'search', remaining: data.remaining_research ?? 0, total: isPro ? 10 : 0, color: 'success', disabled: !isPro },
+      { key: 'agenticQueries', icon: 'bot', remaining: data.remaining_agentic_research ?? 0, total: isPro ? 5 : 0, color: 'orange', disabled: !isPro },
+    ];
+    const gaugeGrid = document.getElementById('gaugeGrid');
+    gaugeGrid.innerHTML = gaugeItems.map(item => {
+      if (item.disabled) return `<div class="gauge-card" style="opacity:0.45;">
+        <div class="gauge-label">${t(item.key)}</div>
+        <svg class="gauge-svg" viewBox="0 0 140 80" aria-hidden="true">
+          <path d="M 16 74 A 54 54 0 0 1 124 74" fill="none" stroke="var(--color-surface-dynamic)" stroke-width="10" stroke-linecap="round"/>
+        </svg>
+        <div class="gauge-value" style="color:var(--color-text-faint);">—</div>
+        <div class="gauge-remaining">${t('unavailable')}</div>
+      </div>`;
+      const svg = makeGaugeSVG(item.remaining, item.total, item.color);
+      const pct = item.total > 0 ? Math.round((item.remaining / item.total) * 100) : 0;
+      return `<div class="gauge-card">
+        <div class="gauge-label">${t(item.key)}</div>
+        ${svg}
+        <div class="gauge-value">${item.remaining} <span style="font-size:var(--text-xs);color:var(--color-text-muted);font-weight:400;">/ ${item.total}</span></div>
+        <div class="gauge-remaining">${pct}% ${t('remaining')}</div>
+      </div>`;
+    }).join('');
+
+    // Sources
+    const sourcesGrid = document.getElementById('sourcesGrid');
+    const sourceToLimit = data.sources?.source_to_limit || {};
+    const sourceIcons = {
+      bmj: 'book-open', nejm: 'book-open', midpage: 'file-text',
+      pitchbook_mcp_cashmere: 'trending-up', cbinsights_mcp_cashmere: 'bar-chart',
+      statista_mcp_cashmere: 'pie-chart', wiley_mcp_cashmere: 'book',
+      visualdx: 'eye', crunchbase: 'briefcase', factset: 'database',
+      scholar: 'graduation-cap', web: 'globe', social: 'users',
+      google_drive: 'hard-drive', dropbox: 'box', github_mcp_direct: 'github',
+      gcal: 'calendar', outlook: 'mail', slack_direct: 'message-square',
+      notion_mcp: 'file', onedrive: 'cloud', sharepoint: 'layout',
+      confluence_mcp_merge: 'book', jira_mcp_merge: 'check-square',
+      asana_mcp_merge: 'check-circle', linear_alt: 'trending-up',
+      microsoft_teams_mcp_merge: 'users', box: 'box',
+      org: 'building', apple_healthkit: 'heart',
+    };
+    const sourceColors = {
+      bmj: 'primary', nejm: 'primary', midpage: 'success',
+      pitchbook_mcp_cashmere: 'orange', cbinsights_mcp_cashmere: 'warning',
+      statista_mcp_cashmere: 'purple', wiley_mcp_cashmere: 'blue',
+      visualdx: 'error', scholar: 'success', web: 'primary', social: 'blue',
+    };
+    const colorVarMap = {
+      primary: 'var(--color-primary)', success: 'var(--color-success)',
+      orange: 'var(--color-orange)', warning: 'var(--color-warning)',
+      purple: 'var(--color-purple)', blue: 'var(--color-blue)',
+      error: 'var(--color-error)', gold: 'var(--color-gold)',
+    };
+
+    const sourceEntries = Object.entries(sourceToLimit);
+    sourcesGrid.innerHTML = sourceEntries.map(([key, val]) => {
+      const icon = sourceIcons[key] || 'database';
+      const colorKey = sourceColors[key] || 'primary';
+      const color = colorVarMap[colorKey] || 'var(--color-primary)';
+      const name = key.replace(/_mcp_merge|_mcp_cashmere|_mcp_direct|_alt/g, '').replace(/_/g, ' ');
+
+      if (val.monthly_limit === null && val.remaining === null) {
+        // Unlimited or integrated
+        return `<div class="source-card">
+          <div class="source-icon-wrap" style="background:color-mix(in oklch,${color} 12%,var(--color-surface-offset));color:${color};">
+            <i data-lucide="${icon}" width="16" height="16"></i>
+          </div>
+          <div class="source-info">
+            <div class="source-name">${name}</div>
+            <div class="source-unlimited">${t('noLimit')}</div>
+          </div>
+          <div class="source-stat" style="color:var(--color-primary);">&#8734;</div>
+        </div>`;
+      }
+      if (val.monthly_limit === 0) {
+        return `<div class="source-card unavailable">
+          <div class="source-icon-wrap">
+            <i data-lucide="${icon}" width="16" height="16"></i>
+          </div>
+          <div class="source-info">
+            <div class="source-name">${name}</div>
+            <div class="source-bar-wrap">
+              <div class="source-bar-track"><div class="source-bar-fill" data-target="0"></div></div>
+            </div>
+          </div>
+          <div class="source-stat" style="color:var(--color-text-faint);">0/0</div>
+        </div>`;
+      }
+      const remaining = val.remaining ?? 0;
+      const total = val.monthly_limit ?? 0;
+      const pct = total > 0 ? (remaining / total) * 100 : 0;
+      return `<div class="source-card">
+        <div class="source-icon-wrap" style="background:color-mix(in oklch,${color} 12%,var(--color-surface-offset));color:${color};">
+          <i data-lucide="${icon}" width="16" height="16"></i>
+        </div>
+        <div class="source-info">
+          <div class="source-name">${name}</div>
+          <div class="source-bar-wrap">
+            <div class="source-bar-track">
+              <div class="source-bar-fill" data-target="${pct.toFixed(1)}" style="background:${color};"></div>
+            </div>
+          </div>
+        </div>
+        <div class="source-stat">${remaining}/${total}</div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('results').classList.add('visible');
+    lucide.createIcons();
+    setTimeout(animateGauges, 50);
+
+    // Scroll to results
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ===== INIT =====
+  lucide.createIcons();
+  setLang('ja');
+</script>
+</body>
+</html>
