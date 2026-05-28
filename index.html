@@ -923,7 +923,7 @@
     // Pro: pro=5, labs=25 (or 0 if free), research=10 (or 0), agentic=5
     // We'll show remaining as value, and use standard limits
     const gaugeItems = [
-      { key: 'proQueries', icon: 'zap', remaining: data.remaining_pro ?? 0, total: isPro ? 25 : 5, color: 'primary' },
+      { key: 'proQueries', icon: 'zap', remaining: data.remaining_pro ?? 0, total: isPro ? 200 : 5, color: 'primary' },
       { key: 'labsQueries', icon: 'flask-conical', remaining: data.remaining_labs ?? 0, total: isPro ? 25 : 0, color: 'purple', disabled: !isPro },
       { key: 'researchQueries', icon: 'search', remaining: data.remaining_research ?? 0, total: isPro ? 25 : 0, color: 'success', disabled: !isPro },
       { key: 'agenticQueries', icon: 'bot', remaining: data.remaining_agentic_research ?? 0, total: isPro ? 5 : 0, color: 'orange', disabled: !isPro },
