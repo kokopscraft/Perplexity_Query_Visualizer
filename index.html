@@ -767,15 +767,16 @@
     let data;
     try { data = JSON.parse(raw); }
     catch(e) { showError(t('parseError')); return; }
-
-    // Check if user is not logged in
-    if (data.free_queries?.remaining_detail?.kind === "not_provided") {
-      showError(t('notLoggedIn')); return;
-    }
-
     if (!data.remaining_pro === undefined || !data.sources) {
       showError(t('invalidFormat')); return;
     }
+
+    // Check if user is not logged in
+    const plan = detectPlan(data);
+    if (plan === 'not_logged_in') {
+      showError(t('notLoggedIn')); return;
+    }
+
     renderResults(data);
   }
 
@@ -789,15 +790,26 @@
 
   // ===== DETECT PLAN =====
   function detectPlan(data) {
-    const labs = data.remaining_labs ?? 0;
-    const research = data.remaining_research ?? 0;
-    if (labs > 0 || research > 0) return 'pro';
-    // Check if sources show limits > 3 (pro) or <= 3 (free)
-    const srcLimits = Object.values(data.sources?.source_to_limit || {})
-      .filter(s => s.monthly_limit !== null && s.monthly_limit > 0)
-      .map(s => s.monthly_limit);
-    if (srcLimits.length > 0 && Math.max(...srcLimits) > 3) return 'pro';
-    return 'free';
+    const src = data.sources?.source_to_limit ?? {};
+
+    // ① monthly_limit > 0 のソースが存在する → Pro確定
+    const hasPaidSource = Object.values(src)
+      .some(v => v.monthly_limit !== null && v.monthly_limit > 0);
+
+    if (hasPaidSource || data.remaining_labs > 0 || data.remaining_research > 0) {
+      return 'pro';
+    }
+
+    // ② google_drive / dropbox 等がnull（接続可能）→ Free（ログイン済み）
+    const driveKeys = ['google_drive', 'dropbox', 'notion_mcp', 'onedrive'];
+    const hasNullDrive = driveKeys.some(
+      k => k in src && src[k].monthly_limit === null
+    );
+
+    if (hasNullDrive) return 'free';
+
+    // ③ それ以外（すべて0かnull）→ 未ログイン
+    return 'not_logged_in';
   }
 
   // ===== GAUGE ARC =====
