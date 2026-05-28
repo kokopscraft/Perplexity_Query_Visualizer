@@ -2,6 +2,8 @@
 
 > **日本語** | [English](#english)
 
+**🚀 ライブデモ: [https://pplx-qv.pages.dev/](https://pplx-qv.pages.dev/)**
+
 Perplexity のレート制限 API レスポンス（JSON）を貼り付けるだけで、クエリ残数・データソース使用状況をビジュアルで確認できる、ブラウザで完結する静的 Web アプリです。
 
 ## 機能
@@ -21,7 +23,7 @@ Perplexity のレート制限 API レスポンス（JSON）を貼り付けるだ
    https://www.perplexity.ai/rest/rate-limit/all
    ```
 2. `Ctrl+A` → `Ctrl+C` でページのテキスト（JSON）を全選択コピー
-3. `index.html` をブラウザで開き、テキストエリアに貼り付けて **「解析する」** をクリック
+3. **[https://pplx-qv.pages.dev/](https://pplx-qv.pages.dev/)** を開き、テキストエリアに貼り付けて **「解析する」** をクリック
 
 ## 動作環境
 
@@ -53,6 +55,8 @@ This project is provided as-is. See the repository for details.
 
 > [日本語](#top) | **English**
 
+**🚀 Live Demo: [https://pplx-qv.pages.dev/](https://pplx-qv.pages.dev/)**
+
 A single-file static web app that visualizes your Perplexity rate-limit data. Just paste the JSON response from the rate-limit API endpoint and instantly see your remaining queries and data-source usage.
 
 ## Features
@@ -72,7 +76,7 @@ A single-file static web app that visualizes your Perplexity rate-limit data. Ju
    https://www.perplexity.ai/rest/rate-limit/all
    ```
 2. Press `Ctrl+A` then `Ctrl+C` to select and copy all the JSON text
-3. Open `index.html` in your browser, paste the text into the textarea, and click **"Analyze"**
+3. Open **[https://pplx-qv.pages.dev/](https://pplx-qv.pages.dev/)** in your browser, paste the text into the textarea, and click **"Analyze"**
 
 ## Requirements
 
