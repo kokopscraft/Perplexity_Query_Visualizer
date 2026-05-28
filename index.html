@@ -666,6 +666,7 @@
       used: "使用済み",
       labelUsed: "使用",
       labelLeft: "残り",
+      notLoggedIn: "Perplexityにログインしていません。ログインして再度お試しください。",
     },
     en: {
       step1Title: "Retrieve Rate Limit Info",
@@ -699,6 +700,7 @@
       used: "Used",
       labelUsed: "Used",
       labelLeft: "Left",
+      notLoggedIn: "You are not logged into Perplexity. Please log in and try again.",
     }
   };
 
@@ -765,6 +767,12 @@
     let data;
     try { data = JSON.parse(raw); }
     catch(e) { showError(t('parseError')); return; }
+
+    // Check if user is not logged in
+    if (data.free_queries?.remaining_detail?.kind === "not_provided") {
+      showError(t('notLoggedIn')); return;
+    }
+
     if (!data.remaining_pro === undefined || !data.sources) {
       showError(t('invalidFormat')); return;
     }
@@ -796,7 +804,7 @@
   function makeGaugeSVG(remaining, total, colorClass, labelUsed, labelLeft) {
     const pct = total > 0 ? Math.min(1, remaining / total) : (remaining > 0 ? 1 : 0);
     const usedPct = 1 - pct;
-    const cx = 70, cy = 74, r = 54;
+    const cx = 70, cy = 50, r = 45;
     const startAngle = Math.PI; // left
     const endAngle = 0;        // right (arc across top)
     function polarToXY(angle) {
@@ -809,8 +817,7 @@
     // Fill arc: from start to pct
     const fillAngle = startAngle - (Math.PI * pct);
     const [fx, fy] = polarToXY(fillAngle);
-    const largeArc = pct > 0.5 ? 1 : 0;
-    const fillPath = pct > 0 ? `M ${sx} ${sy} A ${r} ${r} 0 ${largeArc} 1 ${fx} ${fy}` : '';
+    const fillPath = pct === 0 ? '' : `M ${sx} ${sy} A ${r} ${r} 0 0 0 ${fx} ${fy}`;
     // CSS color var based on colorClass
     const colorMap = {
       'pro': 'var(--color-gold)',
@@ -888,9 +895,9 @@
     // Pro: pro=5, labs=25 (or 0 if free), research=10 (or 0), agentic=5
     // We'll show remaining as value, and use standard limits
     const gaugeItems = [
-      { key: 'proQueries', icon: 'zap', remaining: data.remaining_pro ?? 0, total: isPro ? 5 : 5, color: 'primary' },
+      { key: 'proQueries', icon: 'zap', remaining: data.remaining_pro ?? 0, total: isPro ? 25 : 5, color: 'primary' },
       { key: 'labsQueries', icon: 'flask-conical', remaining: data.remaining_labs ?? 0, total: isPro ? 25 : 0, color: 'purple', disabled: !isPro },
-      { key: 'researchQueries', icon: 'search', remaining: data.remaining_research ?? 0, total: isPro ? 10 : 0, color: 'success', disabled: !isPro },
+      { key: 'researchQueries', icon: 'search', remaining: data.remaining_research ?? 0, total: isPro ? 25 : 0, color: 'success', disabled: !isPro },
       { key: 'agenticQueries', icon: 'bot', remaining: data.remaining_agentic_research ?? 0, total: isPro ? 5 : 0, color: 'orange', disabled: !isPro },
     ];
     const gaugeGrid = document.getElementById('gaugeGrid');
