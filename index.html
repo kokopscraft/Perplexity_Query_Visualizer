@@ -413,7 +413,7 @@
       text-align: center; margin-bottom: var(--space-3);
       text-transform: uppercase; letter-spacing: 0.04em;
     }
-    .gauge-svg { width: 140px; height: 80px; overflow: visible; }
+    .gauge-svg { width: 140px; height: 90px; overflow: visible; }
     .gauge-value {
       font-size: var(--text-lg); font-weight: 700;
       font-variant-numeric: tabular-nums; text-align: center;
@@ -832,21 +832,17 @@
   // ===== GAUGE ARC =====
   function makeGaugeSVG(remaining, total, colorClass, labelUsed, labelLeft) {
     const pct = total > 0 ? Math.min(1, remaining / total) : (remaining > 0 ? 1 : 0);
-    const usedPct = 1 - pct;
-    const cx = 70, cy = 50, r = 45;
-    const startAngle = Math.PI; // left
-    const endAngle = 0;        // right (arc across top)
+    // Fixed parameters
+    const cx = 70, cy = 45, r = 50;
+    const startAngle = Math.PI; // left (180°)
+    const endAngle = 0;         // right (0°)
     function polarToXY(angle) {
       return [cx + r * Math.cos(angle), cy - r * Math.sin(angle)];
     }
     const [sx, sy] = polarToXY(startAngle);
     const [ex, ey] = polarToXY(endAngle);
-    // Track arc: full semicircle
-    const trackPath = `M ${sx} ${sy} A ${r} ${r} 0 0 1 ${ex} ${ey}`;
-    // Fill arc: from start to pct
-    const fillAngle = startAngle - (Math.PI * pct);
-    const [fx, fy] = polarToXY(fillAngle);
-    const fillPath = pct === 0 ? '' : `M ${sx} ${sy} A ${r} ${r} 0 0 0 ${fx} ${fy}`;
+    // Fixed semicircle path
+    const halfCirclePath = `M ${sx} ${sy} A ${r} ${r} 0 0 1 ${ex} ${ey}`;
     // CSS color var based on colorClass
     const colorMap = {
       'pro': 'var(--color-gold)',
@@ -858,16 +854,19 @@
       'warning': 'var(--color-warning)',
     };
     const strokeColor = colorMap[colorClass] || 'var(--color-primary)';
-    return `<svg class="gauge-svg" viewBox="0 0 140 80" aria-hidden="true">
-      <path d="${trackPath}" fill="none" stroke="var(--color-surface-dynamic)" stroke-width="10" stroke-linecap="round"/>
-      ${fillPath ? `<path d="${fillPath}" fill="none" stroke="${strokeColor}" stroke-width="10" stroke-linecap="round" class="gauge-fill-path" style="opacity:0" data-pct="${pct}"/>` : ''}
+    return `<svg class="gauge-svg" viewBox="0 0 140 90" aria-hidden="true">
+      <path d="${halfCirclePath}" fill="none" stroke="var(--color-surface-dynamic)" stroke-width="10" stroke-linecap="round"/>
+      <path d="${halfCirclePath}" fill="none" stroke="${strokeColor}" stroke-width="10" stroke-linecap="round" class="gauge-fill-path" data-pct="${pct}"/>
     </svg>`;
   }
 
   function animateGauges() {
     document.querySelectorAll('.gauge-fill-path').forEach(path => {
-      const len = path.getTotalLength?.() || 200;
-      path.style.strokeDasharray = len;
+      const len = path.getTotalLength?.();
+      if (!len) return;
+      const pct = parseFloat(path.dataset.pct);
+      const dashLength = len * pct;
+      path.style.strokeDasharray = dashLength + ',' + len;
       path.style.strokeDashoffset = len;
       path.style.opacity = '1';
       requestAnimationFrame(() => {
@@ -931,14 +930,22 @@
     ];
     const gaugeGrid = document.getElementById('gaugeGrid');
     gaugeGrid.innerHTML = gaugeItems.map(item => {
-      if (item.disabled) return `<div class="gauge-card" style="opacity:0.45;">
+      if (item.disabled) {
+        const cx = 70, cy = 45, r = 50;
+        const startAngle = Math.PI;
+        const endAngle = 0;
+        const sx = cx + r * Math.cos(startAngle), sy = cy - r * Math.sin(startAngle);
+        const ex = cx + r * Math.cos(endAngle), ey = cy - r * Math.sin(endAngle);
+        const halfCirclePath = `M ${sx} ${sy} A ${r} ${r} 0 0 1 ${ex} ${ey}`;
+        return `<div class="gauge-card" style="opacity:0.45;">
         <div class="gauge-label">${t(item.key)}</div>
-        <svg class="gauge-svg" viewBox="0 0 140 80" aria-hidden="true">
-          <path d="M 16 74 A 54 54 0 0 1 124 74" fill="none" stroke="var(--color-surface-dynamic)" stroke-width="10" stroke-linecap="round"/>
+        <svg class="gauge-svg" viewBox="0 0 140 90" aria-hidden="true">
+          <path d="${halfCirclePath}" fill="none" stroke="var(--color-surface-dynamic)" stroke-width="10" stroke-linecap="round"/>
         </svg>
         <div class="gauge-value" style="color:var(--color-text-faint);">—</div>
         <div class="gauge-remaining">${t('unavailable')}</div>
       </div>`;
+      }
       const svg = makeGaugeSVG(item.remaining, item.total, item.color);
       const pct = item.total > 0 ? Math.round((item.remaining / item.total) * 100) : 0;
       return `<div class="gauge-card">
