@@ -39,6 +39,12 @@ Perplexity_Query_Visualizer/
 
 This project is provided as-is. See the repository for details.
 
+### 商標について
+
+"Perplexity"、"Perplexity AI" および関連するロゴ・サービス名は、Perplexity AI, Inc. の商標または登録商標です。
+本プロジェクトは Perplexity AI, Inc. によって承認または指定されたものではなく、同社とは別個の開発者による非公式のサードパーティツールです。
+商標の使用は、対象サービスを識別する目的のみであり、その所有者に適切な許可なく商標を商業的に利用する意図はありません。
+
 ---
 
 <a name="english"></a>
@@ -83,3 +89,9 @@ Perplexity_Query_Visualizer/
 ## License
 
 This project is provided as-is. See the repository for details.
+
+### Trademark Notice
+
+"Perplexity" and "Perplexity AI" and associated logos and service names are trademarks or registered trademarks of Perplexity AI, Inc.
+This project is an unofficial third-party tool and is not affiliated with, endorsed by, or sponsored by Perplexity AI, Inc.
+The use of these marks is solely for the purpose of identifying the third-party service and is not intended as a commercial use of the trademarks without the permission of the respective owner.
