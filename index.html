@@ -706,8 +706,16 @@
 
   let currentLang = 'ja';
   let currentTheme = matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
+  let currentErrorKey = null; // エラーメッセージのキーを保存
 
   function t(key) { return i18n[currentLang][key] || key; }
+
+  function showError(msg, key) {
+    currentErrorKey = key;
+    const el = document.getElementById('errorMsg');
+    document.getElementById('errorText').textContent = msg;
+    el.classList.add('visible');
+  }
 
   function setLang(lang) {
     currentLang = lang;
@@ -718,6 +726,15 @@
       if (key === 'instr2') { el.innerHTML = i18n[lang].instr2html; return; }
       el.textContent = i18n[lang][key] || el.textContent;
     });
+
+    // Update error message if visible
+    if (currentErrorKey) {
+      const el = document.getElementById('errorMsg');
+      if (el.classList.contains('visible')) {
+        document.getElementById('errorText').textContent = i18n[lang][currentErrorKey] || currentErrorKey;
+      }
+    }
+
     // Re-render results if visible
     const jsonInput = document.getElementById('jsonInput').value.trim();
     if (jsonInput && document.getElementById('results').classList.contains('visible')) {
@@ -766,15 +783,15 @@
     const raw = jsonInput.value.trim();
     let data;
     try { data = JSON.parse(raw); }
-    catch(e) { showError(t('parseError')); return; }
+    catch(e) { showError(t('parseError'), 'parseError'); return; }
     if (!data.remaining_pro === undefined || !data.sources) {
-      showError(t('invalidFormat')); return;
+      showError(t('invalidFormat'), 'invalidFormat'); return;
     }
 
     // Check if user is not logged in
     const plan = detectPlan(data);
     if (plan === 'not_logged_in') {
-      showError(t('notLoggedIn')); return;
+      showError(t('notLoggedIn'), 'notLoggedIn'); return;
     }
 
     renderResults(data);
