@@ -925,8 +925,8 @@
     const gaugeItems = [
       { key: 'proQueries', icon: 'zap', remaining: data.remaining_pro ?? 0, total: isPro ? 200 : 5, color: 'primary' },
       { key: 'labsQueries', icon: 'flask-conical', remaining: data.remaining_labs ?? 0, total: isPro ? 25 : 0, color: 'purple', disabled: !isPro },
-      { key: 'researchQueries', icon: 'search', remaining: data.remaining_research ?? 0, total: isPro ? 25 : 0, color: 'success', disabled: !isPro },
-      { key: 'agenticQueries', icon: 'bot', remaining: data.remaining_agentic_research ?? 0, total: isPro ? 5 : 0, color: 'orange', disabled: !isPro },
+      { key: 'researchQueries', icon: 'search', remaining: data.remaining_research ?? 0, total: isPro ? 10 : 0, color: 'success', disabled: !isPro },
+      { key: 'agenticQueries', icon: 'bot', remaining: data.remaining_agentic_research ?? 0, total: isPro ? 0 : 0, color: 'orange', disabled: !isPro },
     ];
     const gaugeGrid = document.getElementById('gaugeGrid');
     gaugeGrid.innerHTML = gaugeItems.map(item => {
